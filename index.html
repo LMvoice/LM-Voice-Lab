@@ -1,98 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
-
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-        }
-
-        .container {
-            max-width: 420px;
-            margin: 70px auto;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 16px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        }
-
-        h2 {
-            text-align: center;
-            margin-bottom: 25px;
-            font-size: 24px;
-            color: #333;
-        }
-
-        label {
-            font-weight: bold;
-            font-size: 14px;
-            color: #555;
-        }
-
-        input {
-            width: 100%;
-            padding: 13px;
-            margin-top: 6px;
-            margin-bottom: 18px;
-            border: 1.5px solid #ccc;
-            border-radius: 10px;
-            font-size: 15px;
-            outline: none;
-            transition: 0.2s;
-        }
-
-        input:focus {
-            border-color: #3d7cff;
-            box-shadow: 0 0 6px rgba(61,124,255,0.35);
-        }
-
-        .btn {
-            width: 100%;
-            background: #3d7cff;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
-        }
-
-        .btn:hover {
-            background: #2f66d1;
-        }
-
-        .footer-text {
-            text-align: center;
-            margin-top: 15px;
-            color: #777;
-            font-size: 14px;
-        }
+        body { font-family: Arial; background:#f5f5f5; padding:40px; }
+        .box { max-width:420px; margin:auto; background:white; padding:30px; border-radius:12px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+        input { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:1px solid #ccc; }
+        button { width:100%; padding:12px; background:#3d7cff; border:none; color:white; font-size:16px; border-radius:8px; }
+        p { text-align:center; margin-top:10px; }
     </style>
 </head>
-
 <body>
 
-    <div class="container">
-        <h2>Register</h2>
+<div class="box">
+    <h2>Register</h2>
 
-        <label>Username</label>
-        <input type="text" placeholder="Enter username" required>
+    <input id="regEmail" type="email" placeholder="Email">
+    <input id="regPassword" type="password" placeholder="Password">
 
-        <label>Password</label>
-        <input type="password" placeholder="Enter password" required>
+    <button onclick="register()">Daftar</button>
 
-        <button class="btn">Create Account</button>
+    <p>Sudah punya akun? <a href="index.html">Login</a></p>
+</div>
 
-        <p class="footer-text">Already have an account? Login</p>
-    </div>
+<script type="module" src="script.js"></script>
 
 </body>
 </html>
