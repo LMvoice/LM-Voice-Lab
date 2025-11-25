@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LM Voice Lab — Demo</title>
+  <meta name="author" content="LM Voice Lab">
+
+  <style>
+    :root{
+      --bg1: #5b37ff;
+      --bg2: #0f172a;
+      --card: #ffffff;
+      --accent: #6f5cff;
+      --muted: #666;
+      --radius: 14px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Inter, system-ui, Arial, sans-serif;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: linear-gradient(135deg,var(--bg1), #2b6cff 60%, var(--bg2));
+      color:#0b1020;
+      padding:28px;
+    }
+
+    .card{
+      width:100%;
+      max-width:760px;
+      background:var(--card);
+      border-radius:var(--radius);
+      padding:22px;
+      box-shadow: 0 18px 40px rgba(11,16,32,0.25);
+      display:grid;
+      grid-template-columns: 1fr 360px;
+      gap:18px;
+      align-items:start;
+    }
+
+    h1{margin:0;font-size:20px;color:#111;font-weight:700;}
+    p.lead{margin:6px 0 16px;color:var(--muted);font-size:13px;}
+
+    /* left column */
+    .left{padding-right:6px;}
+    label.field{display:block;margin-top:12px;font-weight:600;font-size:13px;color:#333;}
+    input[type=file]{
+      width:100%;
+      padding:10px 12px;
+      border:2px dashed #eee;
+      border-radius:10px;
+      background:#fafafa;
+      font-size:13px;
+      cursor:pointer;
+    }
+    textarea{
+      width:100%;
+      min-height:120px;
+      padding:12px;
+      border-radius:10px;
+      border:1px solid #e6e6e6;
+      resize:vertical;
+      font-size:14px;
+      margin-top:8px;
+    }
+
+    select, input[type=range]{
+      width:100%;
+      margin-top:8px;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      margin-top:14px;
+    }
+    button.primary{
+      flex:1;
+      background:var(--accent);
+      border:none;
+      color:#fff;
+      padding:11px 14px;
+      border-radius:10px;
+      font-weight:700;
+      cursor:pointer;
+      box-shadow: 0 8px 20px rgba(111,92,255,0.18);
+    }
+    button.ghost{
+      background:transparent;
+      border:1px solid #ddd;
+      color:#333;
+      padding:10px 12px;
+      border-radius:10px;
+      cursor:pointer;
+      min-width:120px;
+    }
+
+    /* right column: output & players */
+    .right{
+      background:linear-gradient(180deg,#f8f8ff,#ffffff);
+      border-radius:12px;
+      padding:14px;
+      box-shadow: 0 6px 18px rgba(10,10,20,0.04);
+    }
+
+    .section-title{font-size:13px;font-weight:700;margin:4px 0 8px;color:#222}
+    .player{
+      margin-top:8px;
+      background:#fff;
+      border-radius:10px;
+      padding:10px;
+      border:1px solid #f0f0f5;
+    }
+
+    .meta {font-size:13px;color:var(--muted);margin-top:8px}
+
+    .note{
+      font-size:12px;color:#666;margin-top:12px;
+      background:#fbfbff;padding:10px;border-radius:8px;border:1px solid #f0f0ff;
+    }
+
+    footer.small{font-size:12px;color:#888;margin-top:12px;text-align:center;grid-column:1/-1}
+
+    @media (max-width:880px){
+      .card{grid-template-columns:1fr; padding:16px}
+      .right{order:2}
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" role="main">
+    <div class="left">
+      <h1>LM Voice Lab — Demo</h1>
+      <p class="lead">Upload audio untuk didengarkan, atau tulis teks lalu generate suara (client-side demo). Untuk export/download audio atau TTS server-side, lihat catatan di bawah.</p>
+
+      <label class="field">Upload Audio (opsional)</label>
+      <input id="fileInput" type="file" accept="audio/*" />
+
+      <label class="field">Teks (Text → Speech)</label>
+      <textarea id="ttsText" placeholder="Tulis teks di sini... contoh: Halo, ini demo LM Voice Lab."></textarea>
+
+      <label class="field">Pilih Suara (Voice)</label>
+      <select id="voiceSelect"></select>
+
+      <div style="display:flex;gap:10px;margin-top:10px;">
+        <div style="flex:1">
+          <label class="field">Kecepatan (Rate) <span id="rateVal" style="font-weight:600;color:#444">1.0</span></label>
+          <input id="rate" type="range" min="0.5" max="2" step="0.1" value="1">
+        </div>
+        <div style="width:120px">
+          <label class="field">Nada (Pitch) <span id="pitchVal" style="font-weight:600;color:#444">1.0</span></label>
+          <input id="pitch" type="range" min="0" max="2" step="0.1" value="1">
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="primary" id="generateBtn">Generate (Play TTS)</button>
+        <button class="ghost" id="playUploadBtn">Play Upload</button>
+      </div>
+
+      <div class="note" id="note">
+        Catatan: Playback TTS menggunakan **Web Speech API** di browser. Untuk menghasilkan file audio (download) atau suara AI berkualitas studio, Anda perlu panggilan ke API server (OpenAI / Google / dsb). Contoh placeholder API ada di kode (komentar).
+      </div>
+    </div>
+
+    <div class="right">
+      <div>
+        <div class="section-title">Uploaded Audio</div>
+        <div class="player" id="uploadedPlayerWrap" style="display:none">
+          <audio id="uploadedPlayer" controls style="width:100%"></audio>
+          <div class="meta" id="uploadedMeta"></div>
+        </div>
+
+        <div class="section-title" style="margin-top:12px">Generated Speech (TTS)</div>
+        <div class="player" id="ttsPlayerWrap" style="display:none">
+          <audio id="ttsPlayer" controls style="width:100%"></audio>
+          <div class="meta" id="ttsMeta"></div>
+          <div style="display:flex;gap:8px;margin-top:8px;">
+            <button class="ghost" id="downloadBtn" disabled>Download (server req)</button>
+            <button class="ghost" id="copyTextBtn">Copy Text</button>
+          </div>
+        </div>
+
+        <div class="section-title" style="margin-top:14px">Status</div>
+        <div id="status" class="meta">Ready</div>
+      </div>
+    </div>
+
+    <footer class="small">LM Voice Lab — Demo • Built with Web Speech API</footer>
+  </div>
+
+<script>
+  // --- Helper: DOM refs
+  const fileInput = document.getElementById('fileInput');
+  const uploadedPlayer = document.getElementById('uploadedPlayer');
+  const uploadedPlayerWrap = document.getElementById('uploadedPlayerWrap');
+  const uploadedMeta = document.getElementById('uploadedMeta');
+
+  const ttsText = document.getElementById('ttsText');
+  const voiceSelect = document.getElementById('voiceSelect');
+  const rate = document.getElementById('rate');
+  const pitch = document.getElementById('pitch');
+  const rateVal = document.getElementById('rateVal');
+  const pitchVal = document.getElementById('pitchVal');
+  const generateBtn = document.getElementById('generateBtn');
+  const playUploadBtn = document.getElementById('playUploadBtn');
+
+  const ttsPlayer = document.getElementById('ttsPlayer');
+  const ttsPlayerWrap = document.getElementById('ttsPlayerWrap');
+  const ttsMeta = document.getElementById('ttsMeta');
+  const status = document.getElementById('status');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const copyTextBtn = document.getElementById('copyTextBtn');
+
+  // --- Load available voices
+  let voices = [];
+  function loadVoices(){
+    voices = speechSynthesis.getVoices().sort((a,b)=>a.name.localeCompare(b.name));
+    voiceSelect.innerHTML = '';
+    voices.forEach((v,i)=>{
+      const opt = document.createElement('option');
+      opt.value = i;
+      opt.textContent = `${v.name} — ${v.lang}${v.default ? ' (default)':''}`;
+      voiceSelect.appendChild(opt);
+    });
+    if(voices.length===0){
+      const opt = document.createElement('option'); opt.textContent='(No voices found)'; voiceSelect.appendChild(opt);
+    }
+  }
+  // chrome fires onvoiceschanged
+  speechSynthesis.onvoiceschanged = loadVoices;
+  // try initial load
+  setTimeout(loadVoices
