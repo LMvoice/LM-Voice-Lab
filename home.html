@@ -1,6 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Text To Speech</title>
+    <style>
+        body { font-family: Arial; padding:20px; }
+        textarea { width:100%; height:150px; padding:10px; font-size:16px; }
+        select, button { padding:10px; margin-top:10px; font-size:16px; }
+        audio { margin-top:20px; width:100%; }
+    </style>
+</head>
+<body>
+
+<h1>Text To Speech</h1>
+<textarea id="textInput" placeholder="Masukkan teks di sini..."></textarea>
+
+<br>
+<label>Pilih Suara:</label><br>
+<select id="voiceSelect"></select>
+
+<br><br>
+<button id="speakBtn">Convert to Speech</button>
+<button id="logoutBtn" style="background:red;color:white;">Logout</button>
+
+<audio id="audioPlayer" controls></audio>
+
 <script type="module">
-    import { auth } from "./firebase.js";
-    import { 
-        signOut, 
-        onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { auth } from "./firebase.js";
+import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+// CEK LOGIN
+onAuthStateChanged(auth, (user) => {
+    if (!user) window.location.href = "index.html";
+});
+
+// LOGOUT
+document.getElementById("logoutBtn").onclick = () => signOut(auth);
+
+// TTS
+let voices = [];
+const voiceSelect = document.getElementById("voiceSelect");
+
+function loadVoices() {
+    voices = speechSynthesis.getVoices();
+    voiceSelect.innerHTML = "";
+    voices.forEach((v,i)=>{
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = v.name + " (" + v.lang + ")";
+        voiceSelect.appendChild(option);
+    });
+}
+
+speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+document.getElementById("speakBtn").onclick = function() {
+    const text = document.getElementById("textInput").value;
+    if(!text.trim()) { alert("Teks kosong!"); return; }
+
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.voice = voices[voiceSelect.value];
+    speechSynthesis.speak(utter);
+};
+</script>
+
+</body>
+</html>
