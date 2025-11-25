@@ -1,15 +1,100 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Home</title>
-  <script src="script.js" defer></script>
+  <title>TTS Web</title>
+  <style>
+    body {
+      font-family: Arial;
+      padding: 20px;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      font-size: 16px;
+      padding: 10px;
+    }
+    select, button {
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    audio {
+      margin-top: 20px;
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
-  <h2>Selamat datang!</h2>
 
-  <p id="userEmail"></p>
+  <h1>Text To Speech</h1>
+  <p>Masukkan teks → pilih suara → klik Convert.</p>
 
-  <button onclick="logout()">Logout</button>
+  <textarea id="textInput" placeholder="Masukkan teks di sini..."></textarea>
+
+  <br>
+  <label>Pilih Suara:</label><br>
+  <select id="voiceSelect"></select>
+
+  <br><br>
+  <button id="speakBtn">Convert to Speech</button>
+  <button id="logoutBtn" style="background:red;color:white;">Logout</button>
+
+  <audio id="audioPlayer" controls></audio>
+
+  <script type="module">
+    import { auth } from "./firebase.js";
+    import { signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+    // 🔐 Cek login
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+      }
+    });
+
+    document.getElementById("logoutBtn").onclick = function () {
+      signOut(auth);
+    };
+
+    // -----------------------------
+    //       TEXT TO SPEECH
+    // -----------------------------
+    let voices = [];
+    const voiceSelect = document.getElementById("voiceSelect");
+
+    function loadVoices() {
+      voices = speechSynthesis.getVoices();
+      voiceSelect.innerHTML = "";
+      voices.forEach((v, i) => {
+        const option = document.createElement("option");
+        option.value = i;
+        option.textContent = v.name + " (" + v.lang + ")";
+        voiceSelect.appendChild(option);
+      });
+    }
+
+    speechSynthesis.onvoiceschanged = loadVoices;
+    loadVoices();
+
+    document.getElementById("speakBtn").onclick = function () {
+      const text = document.getElementById("textInput").value;
+      if (!text.trim()) {
+        alert("Teks masih kosong!");
+        return;
+      }
+
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.voice = voices[voiceSelect.value];
+
+      speechSynthesis.speak(utter);
+
+      // Buat file audio dari API browser (hack)
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const audioPlayer = document.getElementById("audioPlayer");
+      audioPlayer.src = url;
+    };
+  </script>
+
 </body>
 </html>
