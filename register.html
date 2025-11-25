@@ -1,18 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <title>Register</title>
-  <script src="script.js" defer></script>
+    <title>Register</title>
+    <style>
+        body { font-family: Arial; background:#f5f5f5; padding:40px; }
+        .box { max-width:420px; margin:auto; background:white; padding:30px; border-radius:12px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+        input { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:1px solid #ccc; }
+        button { width:100%; padding:12px; background:#3d7cff; border:none; color:white; font-size:16px; border-radius:8px; cursor:pointer; }
+        p { text-align:center; margin-top:10px; }
+    </style>
 </head>
 <body>
-  <h2>Register</h2>
 
-  <input id="regEmail" type="email" placeholder="Email"><br><br>
-  <input id="regPassword" type="password" placeholder="Password"><br><br>
+<div class="box">
+    <h2>Register</h2>
 
-  <button onclick="register()">Daftar</button>
+    <input id="regEmail" type="email" placeholder="Email">
+    <input id="regPassword" type="password" placeholder="Password">
 
-  <p>Sudah punya akun? <a href="index.html">Login</a></p>
+    <button onclick="register()">Create Account</button>
+
+    <p>Sudah punya akun? <a href="index.html">Login</a></p>
+</div>
+
+<script type="module" src="script.js"></script>
 </body>
 </html>
